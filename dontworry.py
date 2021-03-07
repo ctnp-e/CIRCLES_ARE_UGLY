@@ -4,6 +4,7 @@ import random as rng
 import imutils
 import array as arr 
 from pprint import pprint as pp
+import math
 
 #need:
 #if contour is smaller than a certain value, ie, in the background, then it isnt counted
@@ -30,6 +31,8 @@ kernel2 = np.ones((x2,x2), np.uint8)
 
 kernel = np.ones((1,8), np.uint8)
 
+def cv2str(str, x,y):
+    cv2.putText(drawing, str,(x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, white, 2)
 
 while True:
     frame = cap.read()[1]
@@ -62,7 +65,7 @@ while True:
 
     # create an empty black image
     drawing = np.zeros((thresh.shape[0], thresh.shape[1], 3), np.uint8)
-    
+
     # draw contours and hull points
     for i in range(len(contours)):
         color_contours = (0, 255, 0) # green - color for contours
@@ -101,12 +104,17 @@ while True:
         delta_x = abs(cXarr[0]-cXarr[1])
         delta_y = abs(cYarr[0]-cXarr[1])
         cv2.line(drawing,(cXarr[0],cYarr[0]),(cXarr[1],cYarr[1]),(255,0,0),1)
+        if (math.tan(delta_y / delta_x))>0.25:
+            cv2str("TOO DAMN MUCH! - deg: " + str(math.tan(delta_y / delta_x) * 180/(math.pi)),20,200)
+        else:
+            cv2str("you're chillin - deg: " + str(math.tan(delta_y / delta_x) * 180/(math.pi)),20,200)
+
     else:
         delta_x = 0
         delta_y = 0
+        cv2str(" ",0,0)
 
-    cv2.putText(drawing, str(delta_x)+ " - " + str(delta_y), (10,15), 
-    cv2.FONT_HERSHEY_SIMPLEX, 0.5, white, 2)
+    cv2str(str(delta_x)+ " - " + str(delta_y),10,15)
 
 
     cv2.imshow("raw_image", frame)
