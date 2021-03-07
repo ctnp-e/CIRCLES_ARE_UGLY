@@ -11,13 +11,19 @@ from pprint import pprint as pp
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FPS, 15)
-#cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
-#cap.set(cv2.CAP_PROP_EXPOSURE, 50)
+cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
+cap.set(cv2.CAP_PROP_EXPOSURE, 50)
 x1 = 3
 x2 = 8
 white = (255,255,255)
-lower_orange = np.array([0, 180, 200], np.uint8)
-upper_orange = np.array([30, 255, 255], np.uint8)
+
+#test with orange
+# lower_color = np.array([0, 180, 200], np.uint8)
+# upper_color = np.array([30, 255, 255], np.uint8)
+
+#test with the retroreflective
+lower_color = np.array([148, 200, 200], np.uint8)
+upper_color = np.array([180, 255, 255], np.uint8)
 
 kernel = np.ones((x1,x1), np.uint8)
 kernel2 = np.ones((x2,x2), np.uint8)
@@ -34,7 +40,7 @@ while True:
 
 
     image = cv2.inRange(cv2.cvtColor(
-        frame, cv2.COLOR_BGR2HSV), lower_orange, upper_orange)
+        frame, cv2.COLOR_BGR2HSV), lower_color, upper_color)
 
     image = cv2.erode(image, kernel)
     image = cv2.dilate(image,kernel2)
