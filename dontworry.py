@@ -6,9 +6,7 @@ import array as arr
 from pprint import pprint as pp
 import math
 
-#need:
-#if contour is smaller than a certain value, ie, in the background, then it isnt counted
-#
+#I HAVE NOW JUST REALIZED WE ARE ONLY TURNING RIGHT THE WHOLE DAMN TIME
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FPS, 15)
@@ -17,14 +15,30 @@ cap.set(cv2.CAP_PROP_FPS, 15)
 x1 = 3
 x2 = 8
 white = (255,255,255)
+#minimum area that is accepted.
+min_area = 2000
+
+#movement responses:
+#1 = move foward
+#2 = turn right
+#3 = 180
+movement = 0
+
+def do(x):
+    what_it_do = {
+        1: "move foward",
+        2: "180",
+        3: "turn"
+    }
+    print (what_it_do.get(x, " "))
 
 #test with orange
-# lower_color = np.array([0, 180, 200], np.uint8)
-# upper_color = np.array([30, 255, 255], np.uint8)
+#lower_color = np.array([0, 180, 200], np.uint8)
+#upper_color = np.array([30, 255, 255], np.uint8)
 
 #test with the retroreflective, assumed blue
-lower_color = np.array([148, 200, 200], np.uint8)
-upper_color = np.array([180, 255, 255], np.uint8)
+lower_color = np.array([100, 100, 80], np.uint8)
+upper_color = np.array([140, 255, 255], np.uint8)
 
 kernel = np.ones((x1,x1), np.uint8)
 kernel2 = np.ones((x2,x2), np.uint8)
@@ -34,6 +48,10 @@ kernel = np.ones((1,8), np.uint8)
 def cv2str(str, x,y):
     cv2.putText(drawing, str,(x,y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, white, 2)
 
+def remove_ident(part):
+    area.pop(part)
+    cXarr.pop(part)
+    cYarr.pop(part)
 while True:
     frame = cap.read()[1]
 
@@ -81,7 +99,8 @@ while True:
 
     cXarr = []
     cYarr = []
-
+    area = []
+    t = 0
     for c in cnts:
         # compute the center of the contour
         M = cv2.moments(c)
@@ -89,9 +108,16 @@ while True:
         cY = int(M["m01"] / M["m00"])
         cXarr.append(cX)
         cYarr.append(cY)
+        area.append(cv2.contourArea(c))
         # draw the contour and center of the shape on the image
         cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
-        cv2.circle(drawing, (cX, cY), 7, (255, 0, 255), -1)
+        if t % 2 == 0:
+            changing_color = (255,0,255)
+        else:
+            changing_color = (0,255,0)
+        t += 1
+
+        cv2.circle(drawing, (cX, cY), 7, changing_color, -1)
 
         cv2.putText(drawing, str(cX), (cX - 20, cY - 20),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
@@ -99,22 +125,37 @@ while True:
         cv2.putText(drawing, str(cY), (cX - 20, cY + 20),
 		cv2.FONT_HERSHEY_SIMPLEX, 0.5, white, 2)
 
+    t = 0
+    while(t < len(area)):
+        if area[t] < min_area:
+            remove_ident(t)
+        else:
+            t+=1
     if len(cXarr)==2: #we have two contours
         #draw the line
         delta_x = abs(cXarr[0]-cXarr[1])
-        delta_y = abs(cYarr[0]-cXarr[1])
+        delta_y = abs(cYarr[0]-cYarr[1])
         cv2.line(drawing,(cXarr[0],cYarr[0]),(cXarr[1],cYarr[1]),(255,0,0),1)
-        if (math.tan(delta_y / delta_x))>0.25:
+        cv2str(str(area[0]) + " , " + str(area[1]),200, 15)
+
+        if (math.tan(delta_y / delta_x))>0.17:
             cv2str("TOO DAMN MUCH! - deg: " + str(math.tan(delta_y / delta_x) * 180/(math.pi)),20,200)
+            do(3)
         else:
             cv2str("you're chillin - deg: " + str(math.tan(delta_y / delta_x) * 180/(math.pi)),20,200)
+            do(1)
+
+    elif len(cXarr)==0:
+        movement = 3
+        delta_x = 0
+        delta_y = 0
 
     else:
         delta_x = 0
         delta_y = 0
-        cv2str(" ",0,0)
+        cv2str(do(2),0,0)
 
-    cv2str(str(delta_x)+ " - " + str(delta_y),10,15)
+    cv2str(str(delta_x)+ " , " + str(delta_y),10,15)
 
 
     cv2.imshow("raw_image", frame)
