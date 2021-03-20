@@ -35,6 +35,8 @@ def do(x):
     }
     print (what_it_do.get(x, " "))
 
+#stole this part from henry. i hope it connects
+#https://github.com/2643/2020-vision/blob/multi-target-dev/main.py 53-76
 def connect():
     cond = threading.Condition()
     notified = [False]
@@ -56,11 +58,13 @@ def connect():
 
 if config.getboolean('CONNECT_TO_SERVER'):
     table = connect()
+
+
 #test with orange
 #lower_color = np.array([0, 180, 200], np.uint8)
 #upper_color = np.array([30, 255, 255], np.uint8)
 
-#test with the retroreflective, assumed blue
+#test with DARK blue
 lower_color = np.array([100, 100, 80], np.uint8)
 upper_color = np.array([140, 255, 255], np.uint8)
 
@@ -186,6 +190,9 @@ while True:
     cv2.imshow("raw_image", frame)
     cv2.imshow("mask1", image)
     cv2.imshow("drawing", drawing)
+
+    if config.getboolean('CONNECT_TO_SERVER'):
+        table.putNumber("mode", value)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
