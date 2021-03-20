@@ -6,7 +6,7 @@ import array as arr
 from pprint import pprint as pp
 import math
 
-#I HAVE NOW JUST REALIZED WE ARE ONLY TURNING RIGHT THE WHOLE DAMN TIME
+#I HAVE NOW JUST REALIZED WE ARE ONLY TURNING LEFT!@!! LEFT LEFT LEFT THE WHOLE DAMN TIME
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FPS, 15)
@@ -37,7 +37,7 @@ def do(x):
 #upper_color = np.array([30, 255, 255], np.uint8)
 
 #test with the retroreflective, assumed blue
-lower_color = np.array([100, 100, 80], np.uint8)
+lower_color = np.array([100, 120, 80], np.uint8)
 upper_color = np.array([140, 255, 255], np.uint8)
 
 kernel = np.ones((x1,x1), np.uint8)
