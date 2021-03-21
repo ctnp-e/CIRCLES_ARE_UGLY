@@ -11,7 +11,7 @@ from networktables import NetworkTables
 #I HAVE NOW JUST REALIZED WE ARE ONLY TURNING RIGHT THE WHOLE DAMN TIME
 
 cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FPS, 15)
+cap.set(cv2.CAP_PROP_FPS, 10)
 #cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
 #cap.set(cv2.CAP_PROP_EXPOSURE, 50)
 x1 = 3
@@ -196,6 +196,7 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+if config.getboolean('CONNECT_TO_SERVER'):
+        table.putNumber("mode", 4)
 cap.release()
 cv2.destroyAllWindows()
